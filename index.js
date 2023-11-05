@@ -31,11 +31,20 @@ async function run() {
     await client.connect();
 
     const coursesCollection = client.db("proLabHub").collection("courses");
-
+    const addJobCollection = client.db("proLabHub").collection("addJobs")
+    // all courcess categorys
     app.get('/courses/:category',async(req,res)=>{
       const category = req.params.category;
       console.log(category)
       const result = await coursesCollection.find({category}).toArray();
+      res.send(result)
+    })
+
+    // all add job 
+    app.post('/addjobs',async(req,res)=>{
+      const jobs = req.body;
+      console.log(jobs)
+      const result = await addJobCollection.insertOne(jobs);
       res.send(result)
     })
     // Send a ping to confirm a successful connection
