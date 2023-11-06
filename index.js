@@ -82,9 +82,18 @@ async function run() {
       res.send(result)
     })
 
-    app.put('/addjobs/:id',async(req,res)=>{
+    app.patch('/addjobs/:id',async(req,res)=>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
       const updatedJob = req.body;
-      
+      console.log(updatedJob)
+      const updateDoc = {
+        $set: {
+          status: updatedJob.status
+        }
+      };
+      const result = await addJobCollection.updateOne(filter,updateDoc);
+      res.send(result)
 
     })
     app.delete('/addjobs/:id',async(req,res)=>{
