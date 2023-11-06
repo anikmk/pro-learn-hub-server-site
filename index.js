@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -31,7 +31,8 @@ async function run() {
     await client.connect();
 
     const coursesCollection = client.db("proLabHub").collection("courses");
-    const addJobCollection = client.db("proLabHub").collection("addJobs")
+    const addJobCollection = client.db("proLabHub").collection("addJobs");
+    const bidFormCollection = client.db("proLabHub").collection("bidFormData");
     // all courcess categorys
     app.get('/courses/:category',async(req,res)=>{
       const category = req.params.category;
@@ -40,9 +41,34 @@ async function run() {
       res.send(result)
     })
 
+
+    app.get('/course/:id',async(req,res)=>{
+      const id = req.params.id;
+      console.log(id)
+      const query = {_id: new ObjectId(id)}
+      const result = await coursesCollection.findOne(query);
+     
+      res.send(result)
+    })
+
+    // bid form collection
+    app.get('/bidform',async(req,res,)=>{
+      console.log(req.query.buyerEmail)
+      let query = {};
+      if(req.query?.buyerEmail){
+        query = {buyerEmail:req.query.buyerEmail}
+      }
+      const result = await bidFormCollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.post('/bidform',async(req,res)=>{
+      const  userBidData = req.body;
+      const result = await bidFormCollection.insertOne(userBidData);
+      res.send(result)
+    })
     // all add job 
     app.get('/addjobs',async(req,res)=>{
-      console.log(req.query.email)
       let query = {}
       if(req.query?.email){
         query = {email: req.query.email}
@@ -52,8 +78,20 @@ async function run() {
     })
     app.post('/addjobs',async(req,res)=>{
       const jobs = req.body;
-      console.log(jobs)
       const result = await addJobCollection.insertOne(jobs);
+      res.send(result)
+    })
+
+    app.put('/addjobs/:id',async(req,res)=>{
+      const updatedJob = req.body;
+      
+
+    })
+    app.delete('/addjobs/:id',async(req,res)=>{
+      const id = req.params.id;
+      console.log(id)
+      const query = {_id: new ObjectId(id)}
+      const result = await addJobCollection.deleteOne(query);
       res.send(result)
     })
     // Send a ping to confirm a successful connection
