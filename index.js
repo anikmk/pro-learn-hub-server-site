@@ -76,6 +76,8 @@ async function run() {
       const result = await addJobCollection.find(query).toArray();
       res.send(result)
     })
+
+    
     app.post('/addjobs',async(req,res)=>{
       const jobs = req.body;
       const result = await addJobCollection.insertOne(jobs);
