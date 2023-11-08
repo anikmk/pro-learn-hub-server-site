@@ -76,28 +76,56 @@ async function run() {
       const result = await addJobCollection.find(query).toArray();
       res.send(result)
     })
+   
 
-    
+    app.get('/updatejobs/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await addJobCollection.findOne(query);
+      res.send(result)
+    })
+
+
     app.post('/addjobs',async(req,res)=>{
       const jobs = req.body;
       const result = await addJobCollection.insertOne(jobs);
       res.send(result)
     })
 
-    app.patch('/addjobs/:id',async(req,res)=>{
+    // confirm update api
+
+    app.put('/addjobs/:id',async(req,res)=>{
       const id = req.params.id;
+      const user = req.body;
+      console.log(user)
       const filter = {_id: new ObjectId(id)}
-      const updatedJob = req.body;
-      console.log(updatedJob)
-      const updateDoc = {
-        $set: {
-          status: updatedJob.status
+      const options = {upsert:true}
+      const updateData = {
+        $set:{
+          email:user.email,
+          jobTitle:user.jobTitle,
+          category:user.category,
+          deadline:user.deadline,
+          minPrice:user.minPrice,
+          maxPrice:user.maxPrice
+
         }
-      };
-      const result = await addJobCollection.updateOne(filter,updateDoc);
+      }
+      const result = await addJobCollection.updateOne(filter,updateData,options);
       res.send(result)
 
     })
+     // bid request all api 
+     app.get('/requpdate',async(req,res)=>{
+      const email = req.query.buyerEmail;
+      const query = {buyerEmail: email}
+      console.log(email)
+      const result = await bidFormCollection.find(query).toArray()
+      res.send(result)
+
+     })
+
+    
     app.delete('/addjobs/:id',async(req,res)=>{
       const id = req.params.id;
       console.log(id)
