@@ -34,20 +34,17 @@ async function run() {
     const addJobCollection = client.db("proLabHub").collection("addJobs");
     const bidFormCollection = client.db("proLabHub").collection("bidFormData");
     // all courcess categorys
-    app.get('/courses/:category',async(req,res)=>{
-      const category = req.params.category;
-      console.log(category)
-      const result = await coursesCollection.find({category}).toArray();
+    app.get('/courses',async(req,res)=>{
+      const result = await coursesCollection.find().toArray();
       res.send(result)
     })
 
 
-    app.get('/course/:id',async(req,res)=>{
+    app.get('/useraddjobs/:id',async(req,res)=>{
       const id = req.params.id;
       console.log(id)
       const query = {_id: new ObjectId(id)}
-      const result = await coursesCollection.findOne(query);
-     
+      const result = await addJobCollection.findOne(query);
       res.send(result)
     })
 
@@ -61,6 +58,23 @@ async function run() {
       const result = await bidFormCollection.find(query).toArray()
       res.send(result)
     })
+
+    // ...........
+    // app.get('/requpdate',async(req,res)=>{
+    //   const email = req.query.buyeremail;
+    //   const query = {buyeremail: email}
+    //   console.log(email)
+    //   const result = await bidFormCollection.find(query).toArray()
+    //   res.send(result)
+
+    //  })
+    app.get('/mybids',async(req,res,)=>{
+      const email = req.query.selleremail;
+      const query = {selleremail: email}
+      const result = await bidFormCollection.find(query).toArray()
+      res.send(result)
+    })
+
 
     app.post('/bidform',async(req,res)=>{
       const  userBidData = req.body;
@@ -91,6 +105,10 @@ async function run() {
       const result = await addJobCollection.insertOne(jobs);
       res.send(result)
     })
+    app.get('/useraddjobs',async(req,res)=>{
+      const result = await addJobCollection.find().toArray()
+      res.send(result)
+    })
 
     // confirm update api
 
@@ -117,13 +135,30 @@ async function run() {
     })
      // bid request all api 
      app.get('/requpdate',async(req,res)=>{
-      const email = req.query.buyerEmail;
-      const query = {buyerEmail: email}
+      const email = req.query.buyeremail;
+      const query = {buyeremail: email}
       console.log(email)
       const result = await bidFormCollection.find(query).toArray()
       res.send(result)
 
      })
+
+    //  status update
+    app.put('/requestaccepted/:id',async(req,res)=>{
+      const id = req.params.id;
+      const user = req.body;
+      console.log(user)
+      const filter = {_id: new ObjectId(id)}
+      const options = {upsert:true}
+      const updateData = {
+        $set:{
+          status:user.status,
+        }
+      }
+      const result = await bidFormCollection.updateOne(filter,updateData,options);
+      res.send(result)
+    })
+
 
     
     app.delete('/addjobs/:id',async(req,res)=>{
